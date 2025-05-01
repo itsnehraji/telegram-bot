@@ -1,35 +1,26 @@
-import os
 from flask import Flask, request
-import requests
+import telegram
+import os
+
+TOKEN = "YOUR_BOT_TOKEN"  # Replace this with your actual token
+bot = telegram.Bot(token=TOKEN)
 
 app = Flask(__name__)
-BOT_TOKEN = os.getenv("BOT_TOKEN")
-CHANNEL_USERNAME = "@evidhyalaya_official"  # your Telegram channel
 
-@app.route(f"/webhook/{BOT_TOKEN}", methods=["POST"])
+@app.route('/')
+def index():
+    return "Bot is running!"
+
+@app.route(f"/webhook/{TOKEN}", methods=['POST'])
 def webhook():
-    data = request.get_json()
+    update = telegram.Update.de_json(request.get_json(force=True), bot)
+    chat_id = update.message.chat.id
+    message = update.message.text
 
-    if "message" in data:
-        chat_id = data["message"]["chat"]["id"]
-        user_id = data["message"]["from"]["id"]
+    # Simple echo bot
+    bot.send_message(chat_id=chat_id, text=f"You said: {message}")
+    return "OK", 200
 
-        # Check membership
-        res = requests.get(
-            f"https://api.telegram.org/bot{BOT_TOKEN}/getChatMember",
-            params={"chat_id": CHANNEL_USERNAME, "user_id": user_id}
-        ).json()
-
-        status = res.get("result", {}).get("status", "")
-        if status in ["member", "creator", "administrator"]:
-            message = "✅ You have access to the sheets!"
-        else:
-            message = "❌ Please join our channel first: https://t.me/evidhyalaya_official"
-
-        # Send reply
-        requests.post(
-            f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
-            json={"chat_id": chat_id, "text": message}
-        )
-
-    return "OK"
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))  # Render requires this
+    app.run(host="0.0.0.0", port=port)
