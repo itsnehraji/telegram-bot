@@ -5,7 +5,7 @@ import os
 
 # Bot token and channel username
 TOKEN = "7947138227:AAEHCdSKjGrJYGteA8WP32urKDynXxfr4Qs"
-CHANNEL_USERNAME = "@evidhyalaya"  # Replace with your actual channel username
+CHANNEL_USERNAME = "@evidhyalaya_official"  # Replace with your actual channel username
 
 bot = Bot(token=TOKEN)
 app = Flask(__name__)
